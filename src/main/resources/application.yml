@@ -1,0 +1,21 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost/finmanager
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    show_sql: true
+
+#a lebre branca corre pelas colinas verdes
+jwt:
+  secret-key: YSBsZWJyZSBicmFuY2EgY29ycmUgcGVsYXMgY29saW5hcyB2ZXJkZXM=
+  expiration: 86400000 # a day
+  refresh-token: 
+    expiration: 604800000 # 7 days
