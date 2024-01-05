@@ -47,9 +47,9 @@ public class JwtServiceImpl implements JwtService{
 
 	
 	@Override
-	public boolean isTokenValid(String token, Usuario usuario) {
+	public boolean isTokenValid(String token, String userName) {
 		final String username = extractUsername(token);
-		return (username.equals(usuario.getNome())) && !isTokenExpired(token);
+		return (username.equals(userName)) && !isTokenExpired(token);
 	}
 	
 	@Override
@@ -70,7 +70,7 @@ public class JwtServiceImpl implements JwtService{
 	  return Jwts
 	            .builder().setHeaderParam("typ", "JWT")
 	            .setClaims(extraClaims)
-	            .setSubject(usuario.getNome())
+	            .setSubject(usuario.getEmail())
 	            .setIssuedAt(new Date(System.currentTimeMillis()))
 	            .setExpiration(new Date(System.currentTimeMillis() + expiration))
 	            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -103,19 +103,5 @@ public class JwtServiceImpl implements JwtService{
 	      .parseClaimsJws(token)
 	      .getBody();
 	}
-	
-//	public boolean isTokenValido(String token) {
-//	try {
-//		Claims claims = obterClaims(token);
-//		Date dataExp = claims.getExpiration();
-//		LocalDateTime dataExpiracao = dataExp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-//		boolean dataHoraAtualisAfterDataExpiracao = LocalDateTime.now().isAfter(dataExpiracao);
-//		
-//		return !dataHoraAtualisAfterDataExpiracao;
-//	} catch (ExpiredJwtException e) {
-//		return false;   
-//	}
-//	
-//}
 	
 }

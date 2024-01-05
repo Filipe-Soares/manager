@@ -22,10 +22,26 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.manager.security.JwtAuthenticationFilter;
+import com.manager.services.JwtService;
+import com.manager.services.impl.SecurityUserDetailsService;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration  {
+	
+	private final SecurityUserDetailsService userDetailsService;
+	private final JwtService jwtService;
+	
+	@Bean
+	PasswordEncoder passWordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 	
 	private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**",
             "/v2/api-docs",
@@ -38,30 +54,16 @@ public class SecurityConfiguration  {
             "/swagger-ui/**",
             "/webjars/**",
             "/swagger-ui.html",
-            "/api/usuarios/autenticar"};
+            "/api/usuarios/autenticar",
+            "/api/usuarios"};
 	
-    @Bean
-    PasswordEncoder passWordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
+   @Bean
+   JwtAuthenticationFilter jwtAuthenticationFilter() {
+	   return new JwtAuthenticationFilter(jwtService, userDetailsService);
+   }
     
-//    @Bean
-//    public UserDetailsService userDetailsService(BCryptPasswordEncoder bCryptPasswordEncoder) {
-//        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-//        manager.createUser(User.withUsername("Filipe")
-//          .password(bCryptPasswordEncoder.encode("senha"))
-//          .roles("USER")
-//          .build());
-//        manager.createUser(User.withUsername("Filipe")
-//          .password(bCryptPasswordEncoder.encode("senha"))
-//          .roles("USER", "ADMIN")
-//          .build());
-//        return manager;
-//    }
-//
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+   @Bean
+   SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         
         http
         .csrf(AbstractHttpConfigurer::disable)
@@ -78,7 +80,7 @@ public class SecurityConfiguration  {
         )
         .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
 //        .authenticationProvider(authenticationProvider)
-//        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 //        .logout(logout ->
 //                logout.logoutUrl("/api/v1/auth/logout")
 //                        .addLogoutHandler(logoutHandler)
@@ -87,56 +89,10 @@ public class SecurityConfiguration  {
         ;
 		
 		return http.build();
-    }
+   }
 
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-
-//	@Bean
-//    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-//        http
-////	        .csrf(AbstractHttpConfigurer::disable)
-//	        .cors(cors -> cors.configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
-//            .authorizeHttpRequests(authz -> authz
-//            	.requestMatchers(antMatcher("/")).permitAll()
-//            			.requestMatchers(antMatcher("/login")).permitAll()
-//            					.requestMatchers(antMatcher("/stylesheets/**")).permitAll()
-//            							.requestMatchers(antMatcher("/javascript/**")).permitAll()
-//            									.requestMatchers(antMatcher("/font-awesome/**")).permitAll()
-//            											.requestMatchers(antMatcher("/css/**")).permitAll()
-//            													.requestMatchers(antMatcher("/img/**")).permitAll()
-//            															.requestMatchers(antMatcher("/webjars/**")).permitAll()
-//                .anyRequest().authenticated()                
-//            ).formLogin( form -> form
-//                    .loginPage("/login")
-//                    .successHandler(authenticationSucessHandler())
-//                    .permitAll()
-//            ).logout(form -> form 
-//            		.invalidateHttpSession(true)
-//            		.clearAuthentication(true)
-//            		.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//            		.logoutSuccessUrl("/login?logout")
-//    	            .permitAll()
-//            ).sessionManagement(session -> session
-//            		.invalidSessionUrl("/login")
-//            ).addFilterBefore(targetUrlFilter(), UsernamePasswordAuthenticationFilter.class)
-//            ;
-////            .httpBasic(withDefaults());
-//        return http.build();
-//    }
-	
-//	 @Override
-//	    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-//	    	authenticationManagerBuilder.authenticationProvider(customAuthProvider);
-//	    }
 	
 }
